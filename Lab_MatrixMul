@@ -11,10 +11,14 @@ public class Lab_MatrixMul {
         int matC_r = matA.data.length;
         int matC_c = matB.data[0].length;
         MyData matC = new MyData(matC_r, matC_c);
-        Thread matrixa = new Thread(new MatrixMulThread(matC_r, matC_r, matA, matB, matC));
+        Thread matrixa = new Thread(new MatrixMulThread(0, 0, matA, matB, matC));
         matrixa.start();
-        
-
+        Thread matrixb = new Thread(new MatrixMulThread(0, 1, matA, matB, matC));
+        matrixb.start();
+        Thread matrixc = new Thread(new MatrixMulThread(1, 0, matA, matB, matC));
+        matrixc.start();
+        Thread matrixd = new Thread(new MatrixMulThread(1, 1, matA, matB, matC));
+        matrixd.start();
         /*
          * Q4 construct 2D array for each "thread"
          * with respected to each cell in matC,
@@ -22,6 +26,9 @@ public class Lab_MatrixMul {
          */
         try {
             matrixa.join();
+            matrixb.join();
+            matrixc.join();
+            matrixd.join();
 
         } catch (Exception e) {
             System.out.println(e);
@@ -52,17 +59,31 @@ class MatrixMulThread implements Runnable {
 
     /* Q2 */public void run() {
         // Q3
-        int[][] temp = new int[processing_row][processing_col];
-        for (int i = 0; i < processing_row; i++) {
-            for (int j = 0; j < processing_col; j++) {
-                for (int k = 0; k < datB.data.length; k++) {
-                    temp[i][j] = datA.data[i][k] + datB.data[k][j];
-                    datC.data = temp;
-                }
+        int[][] temp = new int[2][2];
+        if (processing_row == 0 && processing_col == 0) {
+
+            for (int j = 0; j < 3; j++) {
+                temp[0][0] += datA.data[0][j] * datB.data[j][0];
+                datC.data[0][0] = temp[0][0];
+            }
+
+        } else if (processing_row == 0 && processing_col == 1) {
+            for (int j = 0; j < 3; j++) {
+                temp[0][1] += datA.data[0][j] * datB.data[j][1];
+                datC.data[0][1] = temp[0][1];
+            }
+        } else if (processing_row == 1 && processing_col == 0) {
+            for (int j = 0; j < 3; j++) {
+                temp[1][0] += datA.data[1][j] * datB.data[j][0];
+                datC.data[1][0] = temp[1][0];
+            }
+        } else if (processing_row == 1 && processing_col == 1) {
+            for (int j = 0; j < 3; j++) {
+                temp[1][1] += datA.data[1][j] * datB.data[j][1];
+                datC.data[1][1] = temp[1][1];
             }
         }
-        
-        datC = new MyData(temp);
+
         System.out.println("perform sum of multiplication of assigned row and col");
     }
 }
